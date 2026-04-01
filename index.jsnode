@@ -1,0 +1,33 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Подключение к MongoDB (пока закомментировано, чтобы не было ошибок)
+// mongoose.connect(process.env.MONGODB_URI)
+//   .then(() => console.log('✅ MongoDB подключена'))
+//   .catch(err => console.log('❌ Ошибка MongoDB:', err.message));
+
+// Тестовый маршрут
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Сервер работает!', 
+    time: new Date().toLocaleString('ru-RU'),
+    status: 'OK'
+  });
+});
+
+// Запуск сервера
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log('=================================');
+  console.log('✅ ОСНОВНОЙ СЕРВЕР ЗАПУЩЕН!');
+  console.log(`🌐 http://localhost:${PORT}`);
+  console.log('=================================');
+});
