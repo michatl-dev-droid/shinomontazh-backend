@@ -5,13 +5,26 @@ const XLSX = require('xlsx');
 const path = require('path');
 const fs = require('fs');
 
-// Создаём папку для загрузок
-const uploadDir = path.join(__dirname, '../uploads');
+// Используем временную папку, доступную для записи
+const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads';
+
+// Создаём папку для загрузок (с правами на запись)
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-const upload = multer({ dest: uploadDir });
+// Настройка multer с сохранением в /tmp/uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage: storage, limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB лимит
 
 // ПОЛУЧИТЬ ВСЕ УСЛУГИ
 router.get('/', async (req, res) => {
@@ -76,17 +89,21 @@ router.delete('/:id', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
 // ИМПОРТ ИЗ EXCEL
 router.post('/import-excel', upload.single('file'), async (req, res) => {
+  let filePath = null;
+  
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'Файл не загружен' });
     }
 
-    console.log('Файл загружен:', req.file.path);
+    filePath = req.file.path;
+    console.log('Файл загружен:', filePath);
 
     // Читаем Excel файл
-    const workbook = XLSX.readFile(req.file.path);
+    const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
     const sheet = workbook.Sheets[sheetName];
     const data = XLSX.utils.sheet_to_json(sheet);
@@ -127,29 +144,28 @@ router.post('/import-excel', upload.single('file'), async (req, res) => {
       });
     }
 
-    // Удаляем временный файл
-    fs.unlinkSync(req.file.path);
-
-    if (errors.length > 0) {
-      return res.status(400).json({ errors, services: [] });
-    }
-
     // Сохраняем услуги в базу
-    const Service = require('../models/Service');
     const result = await Service.insertMany(services);
     
     res.json({ 
       message: `Импортировано ${result.length} услуг`,
-      services: result 
+      services: result,
+      errors: errors.length > 0 ? errors : undefined
     });
 
   } catch (err) {
     console.error('Ошибка импорта:', err);
-    // Удаляем временный файл в случае ошибки
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
     res.status(500).json({ error: err.message });
+  } finally {
+    // Удаляем временный файл в любом случае
+    if (filePath && fs.existsSync(filePath)) {
+      try {
+        fs.unlinkSync(filePath);
+      } catch (unlinkErr) {
+        console.error('Ошибка удаления файла:', unlinkErr);
+      }
+    }
   }
 });
+
 module.exports = router;
