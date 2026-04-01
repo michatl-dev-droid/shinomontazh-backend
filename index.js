@@ -25,7 +25,7 @@ app.use('/api/services', require('./routes/services'));
 app.use('/api/service-points', require('./routes/servicePoints'));
 app.use('/api/appointments', require('./routes/appointments'));
 app.use('/api/coupons', require('./routes/coupons'));
-app.use('/api/push', require('./routes/push'));
+//app.use('/api/push', require('./routes/push'));//
 
 // Тестовые эндпоинты
 app.get('/', (req, res) => {
