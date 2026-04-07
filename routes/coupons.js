@@ -90,7 +90,7 @@ router.post('/', async (req, res) => {
     await coupon.save();
 
     // --- ОТПРАВКА PUSH-УВЕДОМЛЕНИЙ ---
-    const allSubscriptions = await PushSubscription.find();
+    /*const allSubscriptions = await PushSubscription.find();
     const notificationPayload = JSON.stringify({
       title: '🎁 Новая скидка!',
       body: `Купон ${coupon.code} — скидка ${coupon.discountPercent}%!`,
@@ -113,7 +113,8 @@ router.post('/', async (req, res) => {
           console.log(`🗑️ Устаревшая подписка ${subDoc._id} удалена`);
         }
       }
-    }
+        
+    }*/
     console.log(`📊 Уведомления отправлены: ${successCount} из ${allSubscriptions.length}`);
 
     res.status(201).json(coupon);
