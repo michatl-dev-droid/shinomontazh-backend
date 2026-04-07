@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Coupon = require('../models/Coupon');
-const PushSubscription = require('../models/PushSubscription');
+//const PushSubscription = require('../models/PushSubscription');
 const webpush = require('web-push');
 
 // VAPID ключи
