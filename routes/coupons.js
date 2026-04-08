@@ -5,8 +5,8 @@ const webpush = require('web-push');
 
 // ========== VAPID КЛЮЧИ (замените на свои) ==========
 const vapidKeys = {
-  publicKey: 'BAzyXNGYwCspWDUflAQssR267i0AeDvzQeU6xu6imPhFdQapi6r6yZl56BQ0VVTnxLXzvAakFICLisgQU6iZsuk',
-  privateKey: 'rddBqbKKAbcQ3U300uymb0-BzD4-sgKzs2ZPzzYquAI'
+  publicKey: process.env.VAPID_PUBLIC_KEY,
+  privateKey: process.env.VAPID_PRIVATE_KEY
 };
 
 webpush.setVapidDetails(
