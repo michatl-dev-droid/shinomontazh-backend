@@ -1,3 +1,4 @@
+// v2 - fixed version without webpush
 const router = require('express').Router();
 const Coupon = require('../models/Coupon');
 
