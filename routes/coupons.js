@@ -66,9 +66,11 @@ router.post('/validate', async (req, res) => {
 
 // POST - сохранить подписку от браузера
 router.post('/subscribe', async (req, res) => {
+  console.log('🔔 ВЫЗВАН ЭНДПОИНТ /subscribe'); // ВРЕМЕННОЕ ЛОГИРОВАНИЕ
+  console.log('📥 Полученные данные:', req.body); // ВРЕМЕННОЕ ЛОГИРОВАНИЕ
+  
   try {
     const subscription = req.body;
-    // Проверяем, существует ли уже такая подписка
     const existing = await PushSubscription.findOne({ 'subscription.endpoint': subscription.endpoint });
     if (!existing) {
       await PushSubscription.create({ subscription });
