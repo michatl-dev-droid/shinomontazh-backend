@@ -1,19 +1,19 @@
 const router = require('express').Router();
 const Coupon = require('../models/Coupon');
 const PushSubscription = require('../models/PushSubscription');
-const webpush = require('web-push');
+//const webpush = require('web-push');
 
 // ========== VAPID КЛЮЧИ (замените на свои) ==========
-const vapidKeys = {
-  publicKey: process.env.VAPID_PUBLIC_KEY,
-  privateKey: process.env.VAPID_PRIVATE_KEY
-};
+//const vapidKeys = {
+  //publicKey: process.env.VAPID_PUBLIC_KEY,
+  //privateKey: process.env.VAPID_PRIVATE_KEY
+//};
 
-webpush.setVapidDetails(
-  'mailto:info@мастершин24.рф',
-  vapidKeys.publicKey,
-  vapidKeys.privateKey
-);
+//webpush.setVapidDetails(
+ // 'mailto:info@мастершин24.рф',
+  //vapidKeys.publicKey,
+  //vapidKeys.privateKey
+//;
 
 // ========== МАРШРУТЫ ДЛЯ КУПОНОВ ==========
 
@@ -86,7 +86,7 @@ router.post('/subscribe', async (req, res) => {
 // ========== СОЗДАНИЕ КУПОНА С УВЕДОМЛЕНИЕМ ==========
 
 // POST - создать новый купон и отправить уведомления
-router.post('/', async (req, res) => {
+/*router.post('/', async (req, res) => {
   try {
     // Создаём купон
     const coupon = new Coupon({
@@ -95,7 +95,7 @@ router.post('/', async (req, res) => {
       isActive: req.body.isActive !== undefined ? req.body.isActive : true,
       expiresAt: req.body.validUntil ? new Date(req.body.validUntil) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
     });
-    await coupon.save();
+    await coupon.save();*/
 
     // --- ОТПРАВКА PUSH-УВЕДОМЛЕНИЙ ---
     const subscriptions = await PushSubscription.find();
