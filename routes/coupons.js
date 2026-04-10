@@ -142,5 +142,8 @@ router.patch('/:id', async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
-
+// ВРЕМЕННЫЙ ТЕСТОВЫЙ ЭНДПОИНТ
+router.get('/test', (req, res) => {
+  res.json({ message: 'Сервер работает! Время: ' + new Date().toISOString() });
+});
 module.exports = router;
