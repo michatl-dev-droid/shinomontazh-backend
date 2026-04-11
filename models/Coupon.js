@@ -17,7 +17,6 @@ const couponSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
-  // Добавляем поле discountPercent, чтобы удовлетворить старой валидации
   discountPercent: {
     type: Number,
     default: 0
@@ -36,10 +35,9 @@ const couponSchema = new mongoose.Schema({
   }
 });
 
-// Хук для автоматического обновления discountPercent перед сохранением
-couponSchema.pre('save', function(next) {
+// Хук для автоматического обновления discountPercent (без next)
+couponSchema.pre('save', function() {
   this.discountPercent = this.discountType === 'percent' ? this.discountValue : 0;
-  next();
 });
 
 module.exports = mongoose.model('Coupon', couponSchema);
