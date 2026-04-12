@@ -3,7 +3,6 @@ const Coupon = require('../models/Coupon');
 const PushSubscription = require('../models/PushSubscription');
 const webpush = require('web-push');
 
-// VAPID ключи из переменных окружения
 const vapidKeys = {
   publicKey: process.env.VAPID_PUBLIC_KEY,
   privateKey: process.env.VAPID_PRIVATE_KEY
@@ -20,7 +19,7 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
   console.warn('⚠️ VAPID ключи не найдены');
 }
 
-// GET - все купоны
+// GET все купоны
 router.get('/', async (req, res) => {
   try {
     const coupons = await Coupon.find().sort({ createdAt: -1 });
@@ -30,7 +29,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET - активные купоны
+// GET активные купоны
 router.get('/active', async (req, res) => {
   try {
     const now = new Date();
@@ -44,36 +43,33 @@ router.get('/active', async (req, res) => {
   }
 });
 
-// POST - сохранить push-подписку
+// POST подписка
 router.post('/subscribe', async (req, res) => {
-  console.log('🔔 ВЫЗВАН ЭНДПОИНТ /subscribe');
   try {
     const subscription = req.body;
     const existing = await PushSubscription.findOne({ 'subscription.endpoint': subscription.endpoint });
     if (!existing) {
       await PushSubscription.create({ subscription });
-      console.log('✅ Новая push-подписка сохранена');
+      console.log('✅ Новая подписка сохранена');
     }
     res.status(201).json({ message: 'Подписка сохранена' });
   } catch (err) {
-    console.error('❌ Ошибка сохранения подписки:', err);
+    console.error('❌ Ошибка:', err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// POST - создать купон
+// POST создать купон
 router.post('/', async (req, res) => {
   try {
     console.log('📥 Данные купона:', req.body);
 
     const coupon = new Coupon({
-  code: req.body.code,
-  discountValue: Number(req.body.discountValue),
-  discountType: req.body.discountType,
-  description: req.body.description || '',
-  isActive: req.body.isActive,
-  expiresAt: req.body.validUntil
-});
+      code: req.body.code,
+      discountText: req.body.discountText,
+      isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+      expiresAt: req.body.validUntil
+    });
 
     await coupon.save();
     console.log('✅ Купон сохранён:', coupon);
@@ -86,8 +82,7 @@ router.post('/', async (req, res) => {
         body: `Купон ${coupon.code} — ${coupon.discountText}`,
         icon: '/favicon.svg',
         badge: '/favicon.svg',
-        url: '/my-coupons',
-        count: await Coupon.countDocuments({ isActive: true, expiresAt: { $gt: new Date() } })
+        url: '/my-coupons'
       });
 
       for (const sub of subscriptions) {
@@ -95,7 +90,7 @@ router.post('/', async (req, res) => {
           await webpush.sendNotification(sub.subscription, payload);
           console.log(`✅ Уведомление отправлено`);
         } catch (err) {
-          console.error(`❌ Ошибка отправки:`, err.message);
+          console.error(`❌ Ошибка:`, err.message);
           if (err.statusCode === 410) {
             await PushSubscription.deleteOne({ _id: sub._id });
           }
@@ -113,7 +108,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-// PUT - обновить купон
+// PUT обновить купон
 router.put('/:id', async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndUpdate(
@@ -122,7 +117,7 @@ router.put('/:id', async (req, res) => {
         code: req.body.code,
         discountText: req.body.discountText,
         isActive: req.body.isActive,
-        expiresAt: req.body.expiresAt || req.body.validUntil
+        expiresAt: req.body.validUntil
       },
       { new: true }
     );
@@ -133,7 +128,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// DELETE - удалить купон
+// DELETE удалить купон
 router.delete('/:id', async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndDelete(req.params.id);
@@ -144,7 +139,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PATCH - изменить статус
+// PATCH изменить статус
 router.patch('/:id', async (req, res) => {
   try {
     const coupon = await Coupon.findByIdAndUpdate(
