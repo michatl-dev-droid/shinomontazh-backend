@@ -91,12 +91,14 @@ router.post('/', async (req, res) => {
     }
     
     const coupon = new Coupon({
-      code: req.body.code,
-      discountType: discountType,
-      discountValue: discountValue,
-      isActive: req.body.isActive !== undefined ? req.body.isActive : true,
-      expiresAt: req.body.expiresAt || req.body.validUntil
-    });
+  code: req.body.code,
+  discountType: discountType,
+  discountValue: discountValue,
+  description: req.body.description || '',   // ← добавить
+  isActive: req.body.isActive !== undefined ? req.body.isActive : true,
+  expiresAt: req.body.expiresAt || req.body.validUntil
+});
+
     
     await coupon.save();
     console.log('✅ Купон сохранён:', coupon);

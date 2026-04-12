@@ -21,6 +21,10 @@ const couponSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  description: {
+    type: String,
+    default: ''
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -35,7 +39,6 @@ const couponSchema = new mongoose.Schema({
   }
 });
 
-// Хук для автоматического обновления discountPercent (без next)
 couponSchema.pre('save', function() {
   this.discountPercent = this.discountType === 'percent' ? this.discountValue : 0;
 });
