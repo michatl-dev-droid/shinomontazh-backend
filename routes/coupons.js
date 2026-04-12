@@ -67,11 +67,13 @@ router.post('/', async (req, res) => {
     console.log('📥 Данные купона:', req.body);
 
     const coupon = new Coupon({
-      code: req.body.code,
-      discountText: req.body.discountText,
-      isActive: req.body.isActive !== undefined ? req.body.isActive : true,
-      expiresAt: req.body.expiresAt || req.body.validUntil
-    });
+  code: req.body.code,
+  discountValue: Number(req.body.discountValue),
+  discountType: req.body.discountType,
+  description: req.body.description || '',
+  isActive: req.body.isActive,
+  expiresAt: req.body.validUntil
+});
 
     await coupon.save();
     console.log('✅ Купон сохранён:', coupon);
