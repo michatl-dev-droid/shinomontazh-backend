@@ -7,22 +7,9 @@ const couponSchema = new mongoose.Schema({
     unique: true,
     uppercase: true
   },
-  discountType: {
+  discountText: {
     type: String,
-    enum: ['percent', 'fixed'],
-    default: 'percent'
-  },
-  discountValue: {
-    type: Number,
     required: true,
-    min: 0
-  },
-  discountPercent: {
-    type: Number,
-    default: 0
-  },
-  description: {
-    type: String,
     default: ''
   },
   isActive: {
@@ -37,10 +24,6 @@ const couponSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
-
-couponSchema.pre('save', function() {
-  this.discountPercent = this.discountType === 'percent' ? this.discountValue : 0;
 });
 
 module.exports = mongoose.model('Coupon', couponSchema);
